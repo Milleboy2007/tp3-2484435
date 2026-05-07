@@ -113,7 +113,7 @@ services:
         - 'traefik.enable=true'
         - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
         - 'traefik.http.routers.jellyfin.entryPoints=websecure'
-        
+
   proxy:
       image: traefik
       container_name: traefik
@@ -153,11 +153,78 @@ services:
       environment:
         - 'DUCKDNS_TOKEN=${DUCKDNS_TOKEN}'
   
+  blogverse_db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - cloud
+    volumes:
+      - blogverse_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  backend:
+    image: milleboy2007/tp2-2484435-blogverse-backend:${BACKEND_VERSION:-latest}
+    build:
+      context: ./2484435-blogverse-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_HOST: blogverse_db
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      PORT: ${BACKEND_PORT:-3000}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+    networks:
+      - cloud
+    # ports:
+    #   - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      blogverse_db:
+        condition: service_healthy
+    labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.blogverse-back.rule=Host(`api-blogverse.${MY_DOMAIN}`)'
+        - 'traefik.http.routers.blogverse-back.entryPoints=websecure'
+        - 'traefik.http.services.blogverse-back.loadbalancer.server.port=3000'
+
+  frontend:
+    image: milleboy2007/tp2-2484435-blogverse-frontend:${FRONTEND_VERSION:-latest}
+    build:
+      context: ./2484435-blogverse-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    restart: unless-stopped
+    networks:
+      - cloud
+    # ports:
+    #   - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.blogverse-front.rule=Host(`blogverse.${MY_DOMAIN}`)'
+        - 'traefik.http.routers.blogverse-front.entryPoints=websecure'
+        - 'traefik.http.services.blogverse-front.loadbalancer.server.port=80'
+
 # Définition des volumes des conteneurs (portainer et bd)
 volumes:
     portainer_data:
     nextclouddb:
     jellyfin_data:
+    blogverse_db_data:
 # Création du réseau cloud (ou les conteneurs vont être lancés)
 networks:
     cloud:
