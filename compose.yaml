@@ -17,11 +17,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     labels:
-        - 'traefik.enable=true'
-        - 'traefik.http.routers.portainer.rule=Host(`portainer.${MY_DOMAIN}`)'
-        - 'traefik.http.routers.portainer.entryPoints=websecure'
-        - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
-        - 'traefik.http.routers.portainer.service=portainer'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.portainer.rule=Host(`portainer.${MY_DOMAIN}`)'
+      - 'traefik.http.routers.portainer.entryPoints=websecure'
+      - 'traefik.http.services.portainer.loadbalancer.server.port=9000'
+      - 'traefik.http.routers.portainer.service=portainer'
 
 
   nextclouddb:
@@ -84,9 +84,9 @@ services:
       - MYSQL_USER=${DB_USER}
       - MYSQL_HOST=nextclouddb
     labels:
-        - 'traefik.enable=true'
-        - 'traefik.http.routers.nextcloud.rule=Host(`nextcloud.${MY_DOMAIN}`)'
-        - 'traefik.http.routers.nextcloud.entryPoints=websecure'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.nextcloud.rule=Host(`nextcloud.${MY_DOMAIN}`)'
+      - 'traefik.http.routers.nextcloud.entryPoints=websecure'
 
 
   jellyfin:
@@ -110,9 +110,9 @@ services:
       - /mnt/media/Movies:/movies
       - /mnt/media/TV:/tv
     labels:
-        - 'traefik.enable=true'
-        - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
-        - 'traefik.http.routers.jellyfin.entryPoints=websecure'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
+      - 'traefik.http.routers.jellyfin.entryPoints=websecure'
 
   proxy:
       image: traefik
@@ -214,10 +214,10 @@ services:
     depends_on:
       - backend
     labels:
-        - 'traefik.enable=true'
-        - 'traefik.http.routers.blogverse-front.rule=Host(`blogverse.${MY_DOMAIN}`)'
-        - 'traefik.http.routers.blogverse-front.entryPoints=websecure'
-        - 'traefik.http.services.blogverse-front.loadbalancer.server.port=80'
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.blogverse-front.rule=Host(`blogverse.${MY_DOMAIN}`)'
+      - 'traefik.http.routers.blogverse-front.entryPoints=websecure'
+      - 'traefik.http.services.blogverse-front.loadbalancer.server.port=80'
 
 # Définition des volumes des conteneurs (portainer et bd)
 volumes:
