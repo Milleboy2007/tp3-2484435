@@ -1,1 +1,5 @@
 .env
+config/
+custom_apps/
+data/
+html/
