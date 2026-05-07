@@ -113,6 +113,7 @@ services:
         - 'traefik.enable=true'
         - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.${MY_DOMAIN}`)'
         - 'traefik.http.routers.jellyfin.entryPoints=websecure'
+        
   proxy:
       image: traefik
       container_name: traefik
@@ -151,21 +152,7 @@ services:
         - '80:80'
       environment:
         - 'DUCKDNS_TOKEN=${DUCKDNS_TOKEN}'
-  plex:
-    image: lscr.io/linuxserver/plex:latest
-    container_name: plex
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - VERSION=docker
-      - PLEX_CLAIM= #optional
-    volumes:
-      - /path/to/plex/library:/config
-      - /path/to/tvseries:/tv
-      - /path/to/movies:/movies
-    restart: unless-stopped
+  
 # Définition des volumes des conteneurs (portainer et bd)
 volumes:
     portainer_data:
